@@ -145,5 +145,20 @@ export default defineConfig({
     dev: {
       startUrl: 'http://localhost:<port>/',
     },
+    tools: {
+      rspack: {
+        experiments: {
+          lazyCompilation: {
+            test(module) {
+              const name = module.nameForCondition();
+              const isHmrEntry =
+                name?.includes('/client/hmr') ||
+                name?.includes('/client/reactRefreshEntry.js');
+              return !isHmrEntry;
+            },
+          },
+        },
+      },
+    },
   },
 });
