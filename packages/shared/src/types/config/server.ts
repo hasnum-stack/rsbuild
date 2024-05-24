@@ -91,7 +91,7 @@ export interface ServerConfig {
   /**
    * Used to set the host of Rsbuild Server.
    */
-  host?: string;
+  host?: string | boolean;
   /**
    * Adds headers to all responses.
    */

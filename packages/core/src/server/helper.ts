@@ -217,21 +217,35 @@ export const getPort = async ({
   return port;
 };
 
+const getHost = (host?: string | boolean) => {
+  if (host === true) {
+    return DEFAULT_DEV_HOST;
+  }
+  // only listen to localhost when host is false
+  if (host === false) {
+    return 'localhost';
+  }
+  return host || DEFAULT_DEV_HOST;
+};
+
 export const getServerConfig = async ({
-  config,
+  config: { server },
   getPortSilently,
 }: {
   config: NormalizedConfig;
   getPortSilently?: boolean;
 }) => {
-  const host = config.server.host || DEFAULT_DEV_HOST;
+  const host = getHost(server.host);
+
   const port = await getPort({
     host,
-    port: config.server.port || DEFAULT_PORT,
-    strictPort: config.server.strictPort || false,
+    port: server.port || DEFAULT_PORT,
+    strictPort: server.strictPort || false,
     silent: getPortSilently,
   });
-  const https = Boolean(config.server.https) || false;
+
+  const https = Boolean(server.https) || false;
+
   return { port, host, https };
 };
 
