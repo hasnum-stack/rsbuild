@@ -4,7 +4,7 @@ import { init } from '../cli/init';
 import { logger } from '../logger';
 
 type Cleaner = () => Promise<unknown> | unknown;
-
+type restartDevServer = (options?: { filePath?: string }) => Promise<void>;
 let cleaners: Cleaner[] = [];
 
 /**
@@ -20,16 +20,13 @@ const clearConsole = () => {
   }
 };
 
-export const restartDevServer = async ({
-  filePath,
-}: {
-  filePath: string;
-}): Promise<void> => {
+export const restartDevServer: restartDevServer = async (options) => {
+  const filePath = options?.filePath;
   clearConsole();
-
-  const filename = path.basename(filePath);
-  logger.info(`Restart because ${color.yellow(filename)} is changed.\n`);
-
+  if (filePath) {
+    const filename = path.basename(filePath);
+    logger.info(`Restart because ${color.yellow(filename)} is changed.\n`);
+  }
   for (const cleaner of cleaners) {
     await cleaner();
     cleaners = [];

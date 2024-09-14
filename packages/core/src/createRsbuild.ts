@@ -6,6 +6,7 @@ import { initRsbuildConfig } from './internal';
 import { logger } from './logger';
 import { setCssExtractPlugin } from './pluginHelper';
 import { createPluginManager } from './pluginManager';
+import { registerShortcuts } from './server/shortcuts';
 import type {
   Build,
   CreateDevServer,
@@ -19,7 +20,7 @@ import type {
   RsbuildPlugin,
   RsbuildPlugins,
   RsbuildProvider,
-  StartDevServer,
+  StartDevServerOptions,
 } from './types';
 
 const getRspackProvider = async () => {
@@ -145,7 +146,9 @@ export async function createRsbuild(
     }
     const { startProdServer } = await import('./server/prodServer');
     const config = await initRsbuildConfig({ context, pluginManager });
-    return startProdServer(context, config, options);
+    const serverResult = await startProdServer(context, config, options);
+    registerShortcuts({ serverResult, context });
+    return serverResult;
   };
 
   const build: Build = (...args) => {
@@ -155,11 +158,13 @@ export async function createRsbuild(
     return providerInstance.build(...args);
   };
 
-  const startDevServer: StartDevServer = (...args) => {
+  const startDevServer = async (options?: StartDevServerOptions) => {
     if (!getNodeEnv()) {
       setNodeEnv('development');
     }
-    return providerInstance.startDevServer(...args);
+    const serverResult = await providerInstance.startDevServer(options);
+    registerShortcuts({ serverResult, context });
+    return serverResult;
   };
 
   const createDevServer: CreateDevServer = (...args) => {
